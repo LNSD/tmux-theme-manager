@@ -1,0 +1,46 @@
+version = 1
+
+[window_options]
+#status-fg = "white"
+#status-bg = "colour7"
+status-style = "fg=white,bg=colour7"
+
+status-left = '#[bg=colour240,fg=colour15] #S #[default]'
+status-left-length = "40"
+
+status-right = '#[fg=colour244]#S:#I:#P #[fg=colour231,bg=colour240] #H #[fg=colour0,bg=colour252] %b %d %a #[bold,fg=colour0]%H:%M '
+status-right-length = "80"
+
+window-status-format = '#[fg=colour15,bg=colour12] #I #[fg=colour0,bg=colour252] #W #[default]'
+#window-status-attr = "none"
+#window-status-bg = "colour76"
+#window-status-fg = "black"
+#window-status-style = "bg=colour76,fg=black"
+
+window-status-current-format = '#[bold,fg=colour0,bg=colour32] #I #[fg=colour0,bg=colour249] #W #[default]'
+#window-status-current-attr = "none"
+#window-status-current-bg = "colour33"
+#window-status-current-fg = "black"
+#window-status-current-style = "bg=colour33,fg=black"
+
+#window-status-last-attr = "none"
+#window-status-last-bg = "cyan"
+#window-status-last-fg = "black"
+window-status-last-style = "bg=colour6,fg=black"
+
+#window-status-activity-attr = "bold"
+#window-status-activity-bg = "colour127"
+#window-status-activity-fg = "black"
+window-status-activity-style = "bg=colour2,fg=colour0"
+
+#window-status-bell-attr = "bold"
+#window-status-bell-bg = "red"
+#window-status-bell-fg = "black"
+window-status-bell-style = "bg=colour9,fg=colour0"
+
+
+#pane-border-fg = "colour7"
+pane-border-style = "fg=colour7"
+#pane-active-border-fg = "colour7"
+#pane-active-border-bg = "default"
+pane-active-border-style = "fg=colour7,bg=default"

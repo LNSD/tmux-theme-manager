@@ -1,0 +1,35 @@
+[package]
+name = "tmux-theme-manager"
+version = "0.1.0"
+authors = ["Lorenzo Delgado <lorenzodelgado.dev@gmail.com>"]
+edition = "2021"
+
+[lib]
+name = "ttm"
+
+[[bin]]
+name = "ttm"
+path = "src/main.rs"
+
+
+[dependencies]
+libtmux = { path = "../tmux" }
+anyhow = "1.0.40"
+clap = "2.33.3"
+dirs = "4.0.0"
+envy = "0.4.2"
+lazy-regex = "2.1.0"
+regex = "1.5.4"
+serde = "1.0.126"
+serde_derive = "1.0.126"
+thiserror = "1.0.25"
+toml = "0.5.8"
+log = "0.4.14"
+env_logger = "0.9.0"
+
+[dev-dependencies]
+assert_matches = "1.5.0"
+indoc = "1.0.3"
+maplit = "1.0.2"
+mockall = "0.9.1"
+testcontainers = "0.12.0"

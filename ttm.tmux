@@ -110,17 +110,17 @@ def load_theme(file_path):
 theme = load_theme(resolve_tpm_theme(current_theme)).get('theme')
 
 
-def set_window_option(option, value):
-    """"""
-    value = value.strip("\"").strip("\'")
-    res = subprocess.run(
-        ["tmux", "set-window-option", "-g", option, value],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
+# def set_window_option(option, value):
+#     """"""
+#     value = value.strip("\"").strip("\'")
+#     res = subprocess.run(
+#         ["tmux", "set-window-option", "-g", option, value],
+#         stdout=subprocess.PIPE, stderr=subprocess.PIPE
+#     )
 
-    if res.returncode != 0:
-        print(res.stdout, file=sys.stdout)
-        print(res.stderr, file=sys.stderr)
+#     if res.returncode != 0:
+#         print(res.stdout, file=sys.stdout)
+#         print(res.stderr, file=sys.stderr)
 
 
 for opt, value in theme.items():
