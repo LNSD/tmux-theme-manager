@@ -1,17 +1,13 @@
-#[derive(Debug)]
-pub struct WindowOption<'a> {
-    pub key: &'a str,
-    pub value: &'a str,
-}
+use std::collections::HashMap;
 
-fn parse_window_option_item(raw: &str) -> WindowOption {
+fn parse_window_option_item(raw: &str) -> (&str, &str) {
     let mut splitter = raw.splitn(2, ' ');
     let key = splitter.next().unwrap();
     let value = splitter.next().unwrap();
-    WindowOption { key, value }
+    (key, value)
 }
 
-pub fn parse_window_options(raw: &str) -> Vec<WindowOption> {
+pub fn parse_window_options(raw: &str) -> HashMap<&str, &str> {
     raw.lines()
         .into_iter()
         .map(parse_window_option_item)
@@ -19,18 +15,18 @@ pub fn parse_window_options(raw: &str) -> Vec<WindowOption> {
 }
 
 #[cfg(test)]
-mod window_options_tests {
+mod tests {
     use indoc::indoc;
 
-    use super::{parse_window_option_item, parse_window_options, WindowOption};
+    use super::{parse_window_option_item, parse_window_options};
 
     #[test]
     fn parse_window_option_test() {
         let raw_option = "word-separators \" \"";
-        let option: WindowOption = parse_window_option_item(raw_option);
+        let (key, value) = parse_window_option_item(raw_option);
 
-        assert_eq!(option.key, "word-separators");
-        assert_eq!(option.value, "\" \"")
+        assert_eq!(key, "word-separators");
+        assert_eq!(value, "\" \"");
     }
 
     #[test]
@@ -54,12 +50,9 @@ mod window_options_tests {
         "## };
 
         let options = parse_window_options(raw_opts);
-        assert_eq!(options.len(), 15);
-        assert_eq!(options[5].key, "@theme-show-session");
-        assert_eq!(options[5].value, "3");
-        assert_eq!(options[11].key, "status-justify");
-        assert_eq!(options[11].value, "left");
-        assert_eq!(options[14].key, "lock-command");
-        assert_eq!(options[14].value, "\"lock -np\"");
+        assert_eq!(options.len(), 12);
+        assert_eq!(options["@theme-show-session"], "3");
+        assert_eq!(options["status-justify"], "left");
+        assert_eq!(options["lock-command"], "\"lock -np\"");
     }
 }

@@ -1,4 +1,3 @@
-use std::env;
 use std::path::PathBuf;
 use std::process::exit;
 
@@ -9,15 +8,15 @@ use tmux::cli::TmuxCli;
 use tmux::env::get_tmux_env_var;
 use tmux::error::TmuxError;
 use tmux::window_options::parse_window_options;
+use ttm::{get_theme_path, load_theme, set_theme};
 use ttm::error::TtmError;
 use ttm::theme::model::Theme;
 use ttm::theme::window_options::{get_theme, get_theme_window_options};
-use ttm::{get_theme_path, load_theme, set_theme};
 
 fn main() {
     env_logger::init();
 
-    let matches = get_cli_matchers();
+    let matches = arg_parser();
 
     if !is_tmux_running() {
         eprintln!("No tmux session available"); // TODO Improve error message
@@ -29,7 +28,7 @@ fn main() {
     // Build Tmux API
     let tmux = TmuxCli::default();
 
-    let theme = match matches.value_of("THEME") {
+    let theme = match matches.value_of(THEME_CLI_ARG) {
         Some(path) => load_theme_from_file(&path),
         None => load_theme_and_override(&tmux),
     };
@@ -75,12 +74,12 @@ fn load_theme_and_override(tmux: &TmuxCli) -> Theme {
     });
 
     log::debug!("Window options retrieved: {:?}", w_opts);
-    let w_opts = parse_window_options(&w_opts);
+    let raw_window_options = parse_window_options(&w_opts);
 
     let mut theme = Theme::default();
 
     // Load theme
-    if let Some(theme_name) = get_theme(&w_opts) {
+    if let Some(theme_name) = get_theme(&raw_window_options) {
         log::debug!("Get theme name from window_options: {:?}", theme_name);
         let theme_path = get_theme_path(&theme_name).unwrap_or_else(|| {
             // TODO Improve error message
@@ -92,22 +91,23 @@ fn load_theme_and_override(tmux: &TmuxCli) -> Theme {
         if let Ok(loaded) = load_theme(&theme_path) {
             theme.update(&loaded.window_options);
         }
-
     }
 
     // Override theme options
-    let theme_override = get_theme_window_options(&w_opts);
+    let theme_override = get_theme_window_options(&raw_window_options);
     theme.update(&theme_override);
 
     theme
 }
 
-fn get_cli_matchers<'a>() -> ArgMatches<'a> {
+const THEME_CLI_ARG: &'static str = "THEME";
+
+fn arg_parser<'a>() -> ArgMatches<'a> {
     App::new("Tmux Theme Manager")
         .version("1.0")
         .author("Lorenzo Delgado (LNSD) <lorenzodelgado.dev@gmail.com")
         .arg(
-            Arg::with_name("THEME")
+            Arg::with_name(THEME_CLI_ARG)
                 .help("Theme file path")
                 .required(false)
                 .index(1),

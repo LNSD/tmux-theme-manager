@@ -2,31 +2,25 @@ use std::collections::HashMap;
 
 use lazy_regex::{Lazy, lazy_regex, Regex};
 
-use tmux::window_options::WindowOption;
-
 static THEME_OPTION: &str = "@theme";
 static THEME_OPTION_NAME_REGEX: Lazy<Regex> = lazy_regex!(r"@theme-(?P<name>[\w\-\[\]].*?)$");
 
-pub fn get_theme(options: &[WindowOption]) -> Option<String> {
-    options
-        .iter()
-        .rev()
-        .find(|&opt| opt.key == THEME_OPTION)
-        .map(|opt| opt.value.to_owned())
+pub fn get_theme(options: &HashMap<&str, &str>) -> Option<String> {
+    options.get(THEME_OPTION).map(|&s| s.to_owned())
 }
 
-pub fn get_theme_window_options(options: &[WindowOption]) -> HashMap<String, String> {
+pub fn get_theme_window_options(options: &HashMap<&str, &str>) -> HashMap<String, String> {
     options
         .iter()
-        .filter(|&opt| THEME_OPTION_NAME_REGEX.is_match(opt.key))
-        .map(|opt| {
+        .filter(|(&key, _)| THEME_OPTION_NAME_REGEX.is_match(key))
+        .map(|(&key, &value)| {
             let name = THEME_OPTION_NAME_REGEX
-                .captures(opt.key)
+                .captures(key)
                 .unwrap()
                 .name("name")
                 .unwrap()
                 .as_str();
-            (name.to_owned(), opt.value.to_owned())
+            (name.to_owned(), value.to_owned())
         })
         .collect()
 }
