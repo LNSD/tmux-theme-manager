@@ -2,11 +2,13 @@
 #[macro_use]
 extern crate assert_matches;
 
-pub mod api;
-pub mod cli;
-pub mod conf;
-pub mod error;
-pub mod env;
-pub mod window_options;
+pub use api::{Tmux, TmuxCliApi};
+pub use env::var;
+pub use error::Error;
 
-pub mod plugins;
+mod api;
+pub mod conf;
+mod env;
+mod error;
+pub mod tpm;
+pub mod window_options;

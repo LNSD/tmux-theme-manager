@@ -1,12 +1,13 @@
-use thiserror::Error;
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error("Tmux executable not found")]
+    ExecutableNotFound(std::io::Error),
 
-#[derive(Error, Debug)]
-pub enum TmuxError {
-    #[error("Executable not found")]
-    ExecutableNotFound { src: std::io::Error },
+    #[error("Tmux command exited with non-zero status code: {0}")]
+    CommandExitStatusError(i32),
 
-    #[error("Tmux command filed: {0}")]
-    ExitStatusError(i32),
+    #[error("An error occurred while parsing command's output")]
+    CommandOutputParsingError,
 
     /// Represents all other cases of `std::io::Error`.
     #[error(transparent)]

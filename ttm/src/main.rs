@@ -3,14 +3,11 @@ use std::process::exit;
 
 use clap::{App, Arg, ArgMatches};
 
-use tmux::api::Tmux;
-use tmux::cli::TmuxCli;
-use tmux::env::get_tmux_env_var;
-use tmux::error::TmuxError;
-use tmux::window_options::parse_window_options;
-use ttm::{get_theme_path, load_theme, set_theme};
-use ttm::error::TtmError;
-use ttm::theme::model::Theme;
+use tmux::{Tmux, TmuxCliApi};
+use tmux::var;
+use tmux::window_options::parse;
+use ttm::{Error, load_theme, set_theme, Theme};
+use ttm::theme::file::get_theme_path;
 use ttm::theme::window_options::{get_theme, get_theme_window_options};
 
 fn main() {
@@ -26,7 +23,7 @@ fn main() {
     }
 
     // Build Tmux API
-    let tmux = TmuxCli::default();
+    let tmux = TmuxCliApi::default();
 
     let theme = match matches.value_of(THEME_CLI_ARG) {
         Some(path) => load_theme_from_file(&path),
@@ -37,7 +34,7 @@ fn main() {
 
     let res = set_theme(&tmux, &theme);
     if res.is_err() {
-        if let TtmError::TmuxRunError(TmuxError::ExitStatusError(rc)) = res.unwrap_err() {
+        if let Error::TmuxError(tmux::Error::CommandExitStatusError(rc)) = res.unwrap_err() {
             // TODO Improve error message
             eprintln!("An error occurred while setting window options to TMUX");
             exit(rc);
@@ -52,11 +49,12 @@ fn main() {
 }
 
 fn is_tmux_running() -> bool {
-    get_tmux_env_var().is_ok()
+    var().is_ok()
 }
 
 fn load_theme_from_file(path: &str) -> Theme {
     log::debug!("Load theme from file: {:?}", path);
+
     let theme_path = PathBuf::from(path);
     load_theme(&theme_path).unwrap_or_else(|e| {
         // TODO Improve error message
@@ -65,7 +63,7 @@ fn load_theme_from_file(path: &str) -> Theme {
     })
 }
 
-fn load_theme_and_override(tmux: &TmuxCli) -> Theme {
+fn load_theme_and_override(tmux: &TmuxCliApi) -> Theme {
     // Get theme name from window_options
     let w_opts = tmux.show_options().unwrap_or_else(|e| {
         // TODO Improve error message
@@ -74,13 +72,13 @@ fn load_theme_and_override(tmux: &TmuxCli) -> Theme {
     });
 
     log::debug!("Window options retrieved: {:?}", w_opts);
-    let raw_window_options = parse_window_options(&w_opts);
+    let raw_window_options = parse(&w_opts);
 
     let mut theme = Theme::default();
 
     // Load theme
     if let Some(theme_name) = get_theme(&raw_window_options) {
-        log::debug!("Get theme name from window_options: {:?}", theme_name);
+        log::trace!("Get theme name from window_options: {:?}", theme_name);
         let theme_path = get_theme_path(&theme_name).unwrap_or_else(|| {
             // TODO Improve error message
             eprintln!("Theme file path could not be built");

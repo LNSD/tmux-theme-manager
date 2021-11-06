@@ -29,7 +29,7 @@ pub fn get_theme_window_options(options: &HashMap<&str, &str>) -> HashMap<String
 mod tests {
     use indoc::indoc;
 
-    use tmux::window_options::parse_window_options;
+    use tmux::window_options::parse;
 
     use super::{get_theme, get_theme_window_options, THEME_OPTION_NAME_REGEX};
 
@@ -72,7 +72,7 @@ mod tests {
 
     #[test]
     fn get_theme_test() {
-        let window_options = parse_window_options(RAW_TEST_OPTIONS);
+        let window_options = parse(RAW_TEST_OPTIONS);
         let theme = get_theme(&window_options);
 
         assert_eq!(theme.unwrap(), "tmux-powerline-theme/powerline3k");
@@ -80,7 +80,7 @@ mod tests {
 
     #[test]
     fn get_theme_window_options_test() {
-        let window_options = parse_window_options(RAW_TEST_OPTIONS);
+        let window_options = parse(RAW_TEST_OPTIONS);
         let theme_options = get_theme_window_options(&window_options);
 
         assert_eq!(theme_options.len(), 2);

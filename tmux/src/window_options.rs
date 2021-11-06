@@ -1,29 +1,26 @@
 use std::collections::HashMap;
 
-fn parse_window_option_item(raw: &str) -> (&str, &str) {
+fn parse_item(raw: &str) -> (&str, &str) {
     let mut splitter = raw.splitn(2, ' ');
     let key = splitter.next().unwrap();
     let value = splitter.next().unwrap();
     (key, value)
 }
 
-pub fn parse_window_options(raw: &str) -> HashMap<&str, &str> {
-    raw.lines()
-        .into_iter()
-        .map(parse_window_option_item)
-        .collect()
+pub fn parse(raw: &str) -> HashMap<&str, &str> {
+    raw.lines().into_iter().map(parse_item).collect()
 }
 
 #[cfg(test)]
 mod tests {
     use indoc::indoc;
 
-    use super::{parse_window_option_item, parse_window_options};
+    use super::{parse, parse_item};
 
     #[test]
     fn parse_window_option_test() {
         let raw_option = "word-separators \" \"";
-        let (key, value) = parse_window_option_item(raw_option);
+        let (key, value) = parse_item(raw_option);
 
         assert_eq!(key, "word-separators");
         assert_eq!(value, "\" \"");
@@ -49,7 +46,7 @@ mod tests {
             lock-command "lock -np"
         "## };
 
-        let options = parse_window_options(raw_opts);
+        let options = parse(raw_opts);
         assert_eq!(options.len(), 12);
         assert_eq!(options["@theme-show-session"], "3");
         assert_eq!(options["status-justify"], "left");

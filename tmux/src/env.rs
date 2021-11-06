@@ -1,11 +1,8 @@
 use std::env;
 use std::path::PathBuf;
 
-use anyhow::Result;
-use thiserror::Error;
-
-#[derive(Error, Debug)]
-pub enum EnvironError {
+#[derive(thiserror::Error, Debug)]
+pub enum EnvError {
     #[error("$TMUX environment variable not present")]
     VarNotFound(#[from] std::env::VarError),
 
@@ -20,23 +17,24 @@ pub struct Env {
     pub session_idx: i32,
 }
 
-pub fn get_tmux_env_var() -> Result<String, EnvironError> {
-    env::var("TMUX").map_err(|e| EnvironError::VarNotFound(e))
+pub fn var() -> anyhow::Result<String, EnvError> {
+    env::var("TMUX").map_err(|e| EnvError::VarNotFound(e))
 }
 
-pub fn parse_environ(var: &str) -> Result<Env, EnvironError> {
+#[allow(dead_code)]
+pub fn parse_environ(var: &str) -> anyhow::Result<Env, EnvError> {
     let splitn: Vec<&str> = var.splitn(3, ",").collect();
     if splitn.len() != 3 {
-        return Err(EnvironError::VarUnknownFormat(var.to_owned()));
+        return Err(EnvError::VarUnknownFormat(var.to_owned()));
     }
 
     let socket_path = PathBuf::from(splitn[0]);
     let server_pid = splitn[1]
         .parse::<i32>()
-        .map_err(|_| EnvironError::VarUnknownFormat(var.to_owned()))?;
+        .map_err(|_| EnvError::VarUnknownFormat(var.to_owned()))?;
     let session_idx = splitn[2]
         .parse::<i32>()
-        .map_err(|_| EnvironError::VarUnknownFormat(var.to_owned()))?;
+        .map_err(|_| EnvError::VarUnknownFormat(var.to_owned()))?;
 
     Ok(Env {
         socket_path,
@@ -49,7 +47,7 @@ pub fn parse_environ(var: &str) -> Result<Env, EnvironError> {
 mod tests {
     use std::path::PathBuf;
 
-    use super::{EnvironError, parse_environ};
+    use super::{EnvError, parse_environ};
 
     #[test]
     fn parse_valid_tmux_env_test() {
@@ -71,7 +69,7 @@ mod tests {
 
         let environ = parse_environ(&tmux_env_var);
 
-        assert_matches!(environ, Err(EnvironError::VarUnknownFormat(_)));
+        assert_matches!(environ, Err(EnvError::VarUnknownFormat(_)));
     }
 
     #[test]
@@ -80,7 +78,7 @@ mod tests {
 
         let environ = parse_environ(&tmux_env_var);
 
-        assert_matches!(environ, Err(EnvironError::VarUnknownFormat(_)));
+        assert_matches!(environ, Err(EnvError::VarUnknownFormat(_)));
     }
 
     #[test]
@@ -89,6 +87,6 @@ mod tests {
 
         let environ = parse_environ(&tmux_env_var);
 
-        assert_matches!(environ, Err(EnvironError::VarUnknownFormat(_)));
+        assert_matches!(environ, Err(EnvError::VarUnknownFormat(_)));
     }
 }
